@@ -60,3 +60,7 @@ std::string &Ini::ReadString(const std::string& section_key, const std::string& 
         return (*value).second;
     }
 }
+
+bool Ini::hasSection(const std::string &section_key) {
+    return section[section_key].size()>0;
+}

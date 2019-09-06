@@ -15,10 +15,14 @@ BillingServer::BillingServer(std::string host, std::string port,
     this->dbPassword = std::move(dbpasswd);
     this->dbName = std::move(dbname);
 }
+BillingServer::~BillingServer() {
+}
 
 bool BillingServer::testConnect() {
     auto mysql = std::make_shared<MYSQL>();
-    requestHandler = std::make_shared<RequestHandler>(*std::make_shared<BillingMysql>(mysql));
+    auto billingMysql = std::make_shared<BillingMysql>(mysql);
+
+    requestHandler = std::make_shared<RequestHandler>(billingMysql);
 
     MYSQL *mysqlPointer = mysql.get();
     mysql_init(mysqlPointer);
@@ -98,11 +102,17 @@ bool BillingServer::registerFd(int epfd) {
         inet_aton(this->host.c_str(), &(addr.sin_addr));
         addr.sin_port = htons(std::atoi(this->port.c_str()));
 
+        int reuse = 1;
+        setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
         if(bind(fd, (sockaddr *)&addr, sizeof(addr)) || listen(fd, 20)){
             std::stringstream ss;
             ss << "BillingServer::start #"<< __LINE__ <<","<<strerror(errno)<< " host:"<<this->host<<" port:"<<this->port;
             Logger::write(ss.str());
             return false;
+        }else{
+            std::stringstream ss;
+            ss << "BillingServer::start @"<< " host:"<<this->host<<" port:"<<this->port;
+            Logger::write(ss.str());
         }
         auto * fd_data = new Billing_Fd_Data(fd, epfd, 1, this->requestHandler);
         struct epoll_event event{};

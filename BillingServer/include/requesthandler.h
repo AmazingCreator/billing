@@ -8,7 +8,8 @@
 
 class RequestHandler{
 public:
-    RequestHandler(BillingMysql& bm) : billingMysql(bm) {};
+    explicit RequestHandler(std::shared_ptr<BillingMysql> bm);
+    virtual ~RequestHandler();
     void processRequest(BillingData& requestData, BillingData& responseData);
 
 private:
@@ -21,7 +22,7 @@ private:
     void keepProcess(BillingData& requestData, BillingData& responseData);
     void connectProcess(BillingData& requestData, BillingData& responseData);
     void pointProcess(BillingData& requestData, BillingData& responseData);
-    BillingMysql& billingMysql;
+    std::shared_ptr<BillingMysql> billingMysql;
 };
 
 #endif

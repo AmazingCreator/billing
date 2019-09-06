@@ -1,9 +1,7 @@
 #include "logger.h"
 
-#include <chrono>
-#include <ctime>
+#include <time.h>
 using std::string;
-using std::chrono::system_clock;
 
 Logger::Logger() {
     fs.open("log.log", std::ios_base::app);
@@ -44,9 +42,9 @@ void Logger::doWrite(const string& str) {
 
 void Logger::outputCurrentTime(std::ostream & out)
 {
-    auto n = system_clock::now();
-    auto t = system_clock::to_time_t(n);
+    time_t t;
+    time (&t);
     char timeStr[22];;
-    std::strftime(timeStr, sizeof(timeStr), "[%Y-%m-%d %H:%M:%S]", std::localtime(&t));
+    strftime(timeStr, sizeof(timeStr), "[%Y-%m-%d %H:%M:%S]", localtime(&t));
     out << timeStr;
 }

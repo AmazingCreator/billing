@@ -26,11 +26,17 @@ bool ResServer::registerFd(int epfd){
     inet_aton(this->host.c_str(), &(addr.sin_addr));
     addr.sin_port = htons(std::atoi(this->port.c_str()));
 
+    int reuse = 1;
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
     if(bind(fd, (sockaddr *)&addr, sizeof(addr)) || listen(fd, 20)){
         std::stringstream ss;
         ss << "ResServer::start #"<< __LINE__ <<","<<strerror(errno)<< " host:"<<this->host<<" port:"<<this->port;
         Logger::write(ss.str());
         return false;
+    }else{
+        std::stringstream ss;
+        ss << "ResServer::start @"<< " host:"<<this->host<<" port:"<<this->port;
+        Logger::write(ss.str());
     }
 
     struct epoll_event ev;

@@ -1,5 +1,12 @@
 #include "requesthandler.h"
 
+RequestHandler::RequestHandler(std::shared_ptr<BillingMysql> bm){
+    this->billingMysql = std::move(bm);
+}
+
+RequestHandler::~RequestHandler(){
+    Logger::write("RequestHandler destructor");
+}
 
 void RequestHandler::processRequest(BillingData &requestData, BillingData &responseData) {
     unsigned char payloadType = requestData.getPayloadType();
@@ -77,7 +84,7 @@ void RequestHandler::registrationProcess(BillingData &requestData, BillingData &
         offset++;
         email.append(1, payloadData[offset]);
     }
-    unsigned char regResult = this->billingMysql.getRegResult(username, password, superPassword, email);
+    unsigned char regResult = this->billingMysql->getRegResult(username, password, superPassword, email);
     Logger::write(std::string("user [") + username + "] (" + email + ")try to reg from " + loginIp + " : " + (regResult==1?"ok":"error"));
     responseData.appendChar(usernameLength);
     responseData.appendText(username);
@@ -99,7 +106,7 @@ void RequestHandler::logoutProcess(BillingData &requestData, BillingData &respon
         offset++;
         username.append(1, payloadData[offset]);
     }
-    this->billingMysql.updateFieldStatus(username, "is_online", false);
+    this->billingMysql->updateFieldStatus(username, "is_online", false);
     unsigned char logoutResult = 0;
     Logger::write(std::string("user [") + username + "] logout");
     responseData.appendChar(usernameLength);
@@ -136,7 +143,7 @@ void RequestHandler::loginProcess(BillingData &requestData, BillingData &respons
         offset++;
         loginIp.append(1, payloadData[offset]);
     }
-    unsigned char loginResult = this->billingMysql.getLoginResult(username, password);
+    unsigned char loginResult = this->billingMysql->getLoginResult(username, password);
 
     const char* loginResultStr[] = {
             "-",//0 invalid
@@ -176,7 +183,7 @@ void RequestHandler::enterGameProcess(BillingData &requestData, BillingData &res
         offset++;
         charName.append(1, payloadData[offset]);
     }
-    this->billingMysql.updateFieldStatus(username, "is_online", true);
+    this->billingMysql->updateFieldStatus(username, "is_online", true);
     unsigned char loginResult = 1;
 
     responseData.appendChar(usernameLength);
@@ -246,7 +253,7 @@ void RequestHandler::pointProcess(BillingData &requestData, BillingData &respons
     responseData.appendChar(usernameLength);
     responseData.appendText(username);
     Logger::write(std::string("user [") + username + "] " + charName + " check point at " + loginIp);
-    unsigned int pointResult = this->billingMysql.getUserPoint(username);
+    unsigned int pointResult = this->billingMysql->getUserPoint(username);
     pointResult = (pointResult + 1) * 1000;
     unsigned char tmpChar;
     tmpChar = (unsigned char)(pointResult >> 24);

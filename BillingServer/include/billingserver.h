@@ -23,12 +23,14 @@ public:
     void read_handler() override;
 private:
     int type;
+    //when BillingServer's handler destructs along with class, its handler can still be held.
     std::shared_ptr<RequestHandler> requestHandler;
 };
 
 class BillingServer {
 public:
-    BillingServer(std::string, std::string, std::string, std::string, std::string, std::string, std::string );
+    BillingServer(std::string, std::string, std::string, std::string, std::string, std::string, std::string);
+    ~BillingServer();
     bool registerFd(int epfd);
 private:
     bool testConnect();

@@ -38,6 +38,7 @@ class Ini{
 public:
     explicit Ini(const std::string & filename);
     ~Ini()=default;
+    bool hasSection(const std::string& section_key);
     int ReadInt(const std::string& section_key, const std::string& key, int default_value=-1);
     std::string& ReadString(const std::string& section_key, const std::string& key);
 private:

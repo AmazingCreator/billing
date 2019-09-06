@@ -1,13 +1,15 @@
 #include <sstream>
 #include "billingmysql.h"
 
-BillingMysql::BillingMysql(std::shared_ptr<MYSQL> mysql) : mysqlHandler(mysql)
+BillingMysql::BillingMysql(std::shared_ptr<MYSQL> mysql)
 {
+    mysqlHandler = std::move(mysql);
 }
 
 BillingMysql::~BillingMysql()
 {
     mysql_close(this->getMysql());
+    Logger::write("BillingMysql destructor");
 }
 
 unsigned char BillingMysql::getLoginResult(std::string & username, std::string & password)
